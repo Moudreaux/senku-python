@@ -1,55 +1,50 @@
 from array import *
+from random import randrange
 
-class tablero():
-    """ Create the board"""
-    def __init__(self,numero):
-        def linea(texto):
-            arr = []
-            for l in range(0, len(texto)):
-                arr.append(texto[l])
-            return arr
-
-        lineas = [[], [], [], [], [], [], []]
-        lineas[0] = linea("  xxx  ")
-        lineas[1] = linea("  xxx  ")
-        lineas[2] = linea("xxxxxxx")
-        lineas[3] = linea("xxx0xxx")
-        lineas[4] = linea("xxxxxxx")
-        lineas[5] = linea("  xxx  ")
-        lineas[6] = linea("  xxx  ")
-        self.t=lineas
+class Table():
+    def __init__(self,t):
+        tab=[]
+        for linea in t.split(','):
+            arr=[]
+            for l in range(0, len(linea)):
+                arr.append(linea[l])
+            tab.append(arr)
+        self.t=tab
         self.anterior = ""
+        self.puntos=0
 
     def dibujar(self):
         import os
         clear = lambda: os.system('cls')
         clear()
-        tc = "  "
+        #Títulos de columnas
+        print(" ",end="")
         for f in range(0, 7):
-            tc = tc + " " + str(f)
-        print(tc)
+            print(str(f),end=" ")
+        print("")
+        #Títulos de filas
         tf = 0
         for fila in self.t:
             col = str(tf) + " "
             for columna in fila:
                 col = col + " " + columna
             print(col)
-            tf = tf + 1
+            tf += 1
 
     def mover(self,num):
-        def poner(n,cont):
-                self.t[int(n[1])][int(n[0])] = cont
+        def pone(n,cont):
+            self.t[int(n[1])][int(n[0])] = cont
 
         def dame(n):
             return self.t[int(n[1])][int(n[0])]
 
-        def marco(num):
+        def marca(num):
             if dame(num) != "x":
                 return "No hay ficha ahí"
             else:
                 if self.anterior != "":
-                    poner(self.anterior, 'x')
-                poner(num, 'X')
+                    pone(self.anterior, 'x')
+                pone(num, 'X')
                 self.anterior = num
                 return ""
 
@@ -64,37 +59,52 @@ class tablero():
                 return "No puedo mover diagonal"
             if (abs(int(num[0])-int(ant[0]))+abs(int(num[1])-int(ant[1]))) != 2:
                 return "No puedo saltar tan lejos"
-            if (num[0] == self.anterior[0]):
+            if num[0] == self.anterior[0]:
                 salto = num[0] + medio(num,ant,1)
             else:
                 salto = medio(num, ant, 0) + num[1]
             if dame(salto) !="x":
                 return("Debe haber una ficha al medio")
             else:
-                poner(ant,'0')
-                poner(salto,'0')
-                poner(num,'X')
+                pone(ant,'0')
+                pone(salto,'0')
+                pone(num,'X')
                 self.anterior=num
-                return "Muevo a: "+num
+                self.puntos+=1
+                return "Puntos: "+str(self.puntos)
 
-        """"Loop principal"""
+        def errado(n):
+            mal=[]
+            mal.append("¿Qué significa '{}'?")
+            mal.append("Ja ja! '{}' muy divertido!")
+            mal.append("Keyboard error: {}")
+            mal.append("Mas '{}' serás vos")
+            mal.append("'{}', ¿Es en serio?")
+            mal.append("Había una vez un {}. Fin.")
+            return mal[int(randrange(len(mal)))].format(n)
+
+        #Loop principal
         msj = ""
-        if len(num)==2:
-            msj = marco(num)
-        elif (num[0] == "+") and (len(num) == 3):
-            msj = muevo(num[1]+num[2])
-        else:
-            if num.lower() != "salir":
-                msj = "Comando erróneo: "+num
-        self.dibujar()
-        if len(msj)>0:
+        try:
+            a=int(num)
+            if len(num)==2:
+                msj = marca(num)
+            elif (num[0] == "+") and (len(num) == 3):
+                msj = muevo(num[1]+num[2])
+        except ValueError:
+            msj = errado(num)
+        if num.lower() != "salir":
+            self.dibujar()
             print(msj)
 
 
-senku=tablero(10)
+senku=Table('  xxx  ,  xxx  ,xxxxxxx,xxx0xxx,xxxxxxx,  xxx  ,  xxx  ')
 senku.dibujar()
 
 move=""
 while move.lower() != "salir":
     move=input("Orden:")
-    senku.mover(move)
+    if move:
+        senku.mover(move)
+    else:
+        senku.dibujar()
