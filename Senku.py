@@ -1,7 +1,14 @@
 from random import randrange
 
 
+def limpiar():
+    import os
+    clear = lambda: os.system('cls')
+    clear()
+
+
 class Tabla:
+
     def __init__(self, t):
         tab = []
         for linea in t.split(','):
@@ -15,13 +22,8 @@ class Tabla:
         self.tot_col = len(linea)
         self.fichas = len(t) - len(t.replace('x', ''))
 
-    def limpiar(self):
-        import os
-        clear = lambda: os.system('cls')
-        clear()
-
     def dibujar(self):
-        self.limpiar()
+        limpiar()
         # Títulos de columnas
         print("   ", end="")
         for f in range(0, self.tot_col):
@@ -83,7 +85,7 @@ class Tabla:
                 if self.fichas == 1:
                     return ""
                 else:
-                    return "Faltan: " + str(self.fichas - 1)
+                    return "Faltan: " + str(self.fichas - 1) + " fichas"
 
         def errado(n):
             mal = []
@@ -111,19 +113,33 @@ class Tabla:
             print(msj)
 
 
+def felicitar():
+    print("Felicitaciones!!!")
+    print("Haz vencido este nivel!!!")
+    input("Presiona Enter para ir al siguiente nivel")
+
+
+def fin():
+    print("FELICITACIONES!!!")
+    print("Haz vencido todos los niveles del juego!!!")
+    input("Presiona Enter para volver al menú principal")
+
+
 def jugar(n):
     senku = Tabla(n)
     senku.dibujar()
-    move = ""
     while True:
+        print("R-reiniciar/S-Salir")
         move = input("Orden:")
         if move.lower() == "s":
-            return 0
+            return "s"
+        elif move.lower() == "r":
+            return "r"
         elif move:
             senku.mover(move)
             if senku.fichas == 1:
-                print("Felicitaciones!!!")
-                return 1
+                felicitar()
+                return "f"
         else:
             senku.dibujar()
 
@@ -137,7 +153,7 @@ def tutorial():
         demo.mover(n)
 
     demo = Tabla(' xxox ')
-    demo.limpiar()
+    limpiar()
     print("Bienvenido a Senku")
     print("El objetivo del juego es ir eliminando fichas (x) hasta que quede una sola.")
     nada = input("Presiona Enter para mostrar el tablero")
@@ -161,12 +177,27 @@ niveles.append(" oxoxo , ooxxo , xxoxo , oxooo ,  ooo  ,ooooooo")
 niveles.append("ooooooo,xxoooxo,oxo xoo,ooxoxxo,ooo oox,xxo xxo,xoxooxx")
 niveles.append("  xxx  ,  xxx  ,xxxxxxx,xxx0xxx,xxxxxxx,  xxx  ,  xxx  ")
 
-# jugar(niveles[3])
+nivel = 0
+while True:
+    limpiar()
+    print("Bienvenido a Senku")
+    print("------------------")
+    print("1 - Tutorial")
+    print("2 - Jugar")
+    print("0 - Salir")
+    op = input('Opción:')
+    if op == "1":
+        tutorial()
+    elif op == "2":
+        while True:
+            r = jugar(niveles[nivel])
+            if r == "f":
+                nivel += 1
+                if nivel > niveles.len:
+                    fin()
+                    break
+            elif r == "s":
+                break
 
-
-print("Bienvenido a Senku")
-print("------------------")
-print("1 - Tutorial")
-print("2 - Jugar")
-print("S - Salir")
-tutorial()
+    elif op.lower() == "0":
+        break
