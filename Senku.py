@@ -75,7 +75,7 @@ class Tabla:
             else:
                 salto = medio(num, ant, 0) + num[1]
             if dame(salto) != "x":
-                return ("Debe haber una ficha al medio")
+                return "Debe haber una ficha al medio"
             else:
                 pone(ant, 'o')
                 pone(salto, 'o')
@@ -89,7 +89,7 @@ class Tabla:
 
         def errado(n):
             mal = []
-            mal.append("¿Qué significa '{}'?")
+            mal[0] = "¿Qué significa '{}'?"
             mal.append("Ja ja! '{}' muy divertido!")
             mal.append("Keyboard error: {}")
             mal.append("Mas '{}' serás vos")
