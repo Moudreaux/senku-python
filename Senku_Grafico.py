@@ -36,7 +36,7 @@ class Tabla:
         self.comidas = 0
         self.puntaje = p
 
-    def redibujar(self):
+    def redibujar(self, sonido: int):
         def valor(t: str, y: int):
             x = 940
             texto = fuente36.render(t, True, Amarillo)
@@ -129,11 +129,12 @@ def jugar(n, puntos, sonido):
     pantalla.blit(fondo, (0, 0))
     mensaje("NIVEL " + str(n), 350, 450, 1000)
     senku = Tabla(niveles[n], puntos)
-    senku.redibujar()
-    while True:
+    senku.redibujar(sonido)
+    seguir = True
+    while seguir:
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                return "salir", senku.puntaje
+                return "salir", senku.puntaje, sonido
             if event.type == pg.MOUSEBUTTONUP:
                 pos = pg.mouse.get_pos()
                 for fila in senku.t:
@@ -141,19 +142,24 @@ def jugar(n, puntos, sonido):
                         if f.rc.collidepoint(pos):
                             if f.valor != "esp":
                                 m = senku.mover(f, sonido)
-                                print(sonido)
                                 if m == "Next":
-                                    return "Next", senku.puntaje
-                                senku.redibujar()
+                                    volver = "Next"
+                                    seguir = False
+                                senku.redibujar(sonido)
                 if salida.get_rect(topleft=(920, 700)).collidepoint(pos):
-                    return "salir", senku.puntaje
+                    volver = "salir"
+                    seguir = False
                 if reiniciar.get_rect(topleft=(740, 700)).collidepoint(pos):
-                    return "r", senku.puntaje
+                    volver = "r"
+                    seguir = False
                 if ruido.get_rect(topleft=(830, 700)).collidepoint(pos):
-                    sonido = 0
-                if silencio.get_rect(topleft=(830, 700)).collidepoint(pos):
-                    sonido = 1
+                    if sonido == 1:
+                        sonido = 0
+                    else:
+                        sonido = 1
+                    senku.redibujar(sonido)
         pg.display.flip()
+    return volver, senku.puntaje, sonido
 
 
 def mensaje(t, x, y, tiempo: int = 0):
@@ -171,8 +177,7 @@ def felicitaciones(n):
     pg.draw.rect(pantalla, Negro, (710, 240, 280, 520))
     mensaje("NIVEL " + str(n) + " VENCIDO II", 350, 350)
     bono = (n + 1) * 100
-    mensaje("RECOMPENSA " + str(bono) + " PUNTOS", 350, 450)
-    mensaje("FELICITACIONES", 350, 550, 2000)
+    mensaje("BONUS " + str(bono), 350, 450, 1500)
 
 
 # Parte gráfica
@@ -228,7 +233,7 @@ pg.display.flip()
 pg.time.delay(2000)
 
 while True:
-    r, puntos = jugar(nivel, puntos, sonido)
+    r, puntos, sonido = jugar(nivel, puntos, sonido)
     if r == "Next":
         felicitaciones(nivel)
         puntos += nivel * 100
